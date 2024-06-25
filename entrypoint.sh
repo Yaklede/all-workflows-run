@@ -1,14 +1,23 @@
 #!/bin/bash
 
-JOB_COUNT="${USE_JOB_COUNT:-1}"
-WORKFLOW_REGEX="${WORKFLOWS_PATTERN:-default_pattern}"
+set -e
+
+JOB_COUNT="${USE_JOB_COUNT:-1}"  # 기본값 1로 설정
+WORKFLOW_REGEX="${WORKFLOWS_PATTERN:-.*}"  # 기본값 모든 워크플로우로 설정
 
 ACCESS_TOKEN="${ACCESS_TOKEN}"
 
-API_URL="https://api.github.com/repos/owner/repo/actions/workflows"
+OWNER=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f1)
+REPO=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f2)
+API_URL="https://api.github.com/repos/${OWNER}/${REPO}/actions/workflows"
 
 function getAllWorkflows() {
-  curl -s -H "Authorization: Bearer $ACCESS_TOKEN" $API_URL | jq -r '.workflows[] | "\(.name) \(.path)"'
+  response=$(curl -s -H "Authorization: Bearer $ACCESS_TOKEN" $API_URL)
+
+  # 응답이 올바른지 확인
+  echo "API Response: $response"
+
+  echo "$response" | jq -r '.workflows[] | "\(.name) \(.path) \(.id)"'
 }
 
 function getFilteredWorkflows() {
@@ -19,11 +28,12 @@ function getFilteredWorkflows() {
 function runWorkflows() {
   local regex=$1
   local jobCount=$2
-  getFilteredWorkflows "$regex" | head -n $jobCount | while read -r name path; do
-    echo "Dispatching workflow: $name"
-    curl -s -X POST -H "Authorization: Bearer $ACCESS_TOKEN" $API_URL/$path/dispatches \
+  getFilteredWorkflows "$regex" | head -n $jobCount | while read -r name path id; do
+    echo "Dispatching workflow: $name (ID: $id)"
+    dispatchResponse=$(curl -s -X POST -H "Authorization: Bearer $ACCESS_TOKEN" $API_URL/$path/dispatches \
          -H "Accept: application/vnd.github.v3+json" \
-         -d '{"ref":"main"}' > /dev/null
+         -d '{"ref":"main"}')
+    echo "Dispatch response: $dispatchResponse"
     echo "Workflow dispatched successfully."
   done
 }
