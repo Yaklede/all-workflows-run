@@ -15,4 +15,3 @@ runs:
   env:
     USE_JOB_COUNT: ${{ inputs.useJobCount }}
     WORKFLOWS_PATTERN: ${{ inputs.workflowsPattern }}
-    ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
