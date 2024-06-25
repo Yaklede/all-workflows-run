@@ -1,0 +1,19 @@
+name: Full Deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  full-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Run Custom Plugin
+        uses: yaklede@all-workflows-run
+        with:
+          useJobCount: 1
+          workflowsPattern: *
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
