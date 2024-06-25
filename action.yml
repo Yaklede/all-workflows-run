@@ -1,0 +1,18 @@
+name: 'Run Workflows Plugin'
+description: 'A custom action to run filtered workflows based on job count and pattern'
+inputs:
+  useJobCount:
+    description: 'The number of jobs to run'
+    required: true
+    default: '1'
+  workflowsPattern:
+    description: 'Regex pattern to filter workflows'
+    required: true
+    default: '.*'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  env:
+    USE_JOB_COUNT: ${{ inputs.useJobCount }}
+    WORKFLOWS_PATTERN: ${{ inputs.workflowsPattern }}
+    ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
