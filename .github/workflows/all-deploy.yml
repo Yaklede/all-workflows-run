@@ -11,9 +11,9 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Run Custom Plugin
-        uses: yaklede/all-workflows-run@main
+        uses: Yaklede/all-workflows-run@main
         with:
           useJobCount: 1
-          workflowsPattern: *
+          workflowsPattern: "*"
         env:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
